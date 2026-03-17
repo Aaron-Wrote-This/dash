@@ -152,6 +152,7 @@ def test_dveh002_prevent_update_not_in_error_msg(dash_duo):
     for _ in range(3):
         dash_duo.find_element("#python").click()
 
+    dash_duo.wait_for_text_to_equal("#output", "button clicks: 3")
     assert (
         dash_duo.find_element("#output").text == "button clicks: 3"
     ), "the click counts correctly in output"
