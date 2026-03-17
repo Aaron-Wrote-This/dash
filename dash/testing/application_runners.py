@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import time
 import uuid
 import shlex
@@ -26,6 +27,17 @@ from dash.testing.errors import (
 from dash.testing import wait
 
 logger = logging.getLogger(__name__)
+
+
+def _worker_port_base():
+    """Return a port base offset for the current pytest-xdist worker.
+
+    Each worker (gw0, gw1, ...) gets a unique 100-port window so parallel
+    test runs don't collide.  Outside of xdist the offset is 0.
+    """
+    worker = os.environ.get("PYTEST_XDIST_WORKER", "gw0")
+    match = re.match(r"gw(\d+)", worker)
+    return int(match.group(1)) * 100 if match else 0
 
 
 def import_app(app_file, application_name="app"):
@@ -59,12 +71,12 @@ def import_app(app_file, application_name="app"):
 class BaseDashRunner:
     """Base context manager class for running applications."""
 
-    _next_port = 58050
+    _next_port = 58050 + _worker_port_base()
 
     def __init__(self, keep_open, stop_timeout, scheme="http", host="localhost"):
         self.scheme = scheme
         self.host = host
-        self.port = 8050
+        self.port = BaseDashRunner._next_port
         self.started = None
         self.keep_open = keep_open
         self.stop_timeout = stop_timeout
@@ -220,7 +232,11 @@ class MultiProcessRunner(BaseDashRunner):
 
     # pylint: disable=arguments-differ
     def start(self, app, start_timeout=3, **kwargs):
-        self.port = kwargs.get("port", 8050)
+        if "port" not in kwargs:
+            kwargs["port"] = self.port = BaseDashRunner._next_port
+            BaseDashRunner._next_port += 1
+        else:
+            self.port = kwargs["port"]
 
         def target():
             app.scripts.config.serve_locally = True
@@ -279,7 +295,7 @@ class ProcessRunner(BaseDashRunner):
         app_module=None,
         application_name="app",
         raw_command=None,
-        port=8050,
+        port=None,
         start_timeout=3,
     ):
         """Start the server with waitress-serve in process flavor."""
@@ -288,6 +304,9 @@ class ProcessRunner(BaseDashRunner):
                 "the process runner needs to start with at least one valid command"
             )
             return
+        if port is None:
+            port = BaseDashRunner._next_port
+            BaseDashRunner._next_port += 1
         self.port = port
         args = shlex.split(
             raw_command
