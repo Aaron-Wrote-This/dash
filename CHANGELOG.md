@@ -9,9 +9,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 - [#3629](https://github.com/plotly/dash/pull/3629) Fix date pickers not showing date when initially rendered in a hidden container.
-- [#3627][(](https://github.com/plotly/dash/pull/3627)) Make dropdowns searchable wheen focused, without requiring to open them first
+- [#3627][(](https://github.com/plotly/dash/pull/3627)) Make dropdowns searchable when focused, without requiring to open them first
 - [#3656][(](https://github.com/plotly/dash/pull/3656)) Improved dropdown performance for large collections of options
 - [#3660][(](https://github.com/plotly/dash/pull/3660)) Allow same date to be selected for both start and end in DatePickerRange components
+- [#3682](https://github.com/plotly/dash/pull/3682) Fix initial callbacks when created via dcc.Patch
 
 
 
