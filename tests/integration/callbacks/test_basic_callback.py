@@ -24,6 +24,7 @@ from dash import (
     callback_context,
 )
 from dash.exceptions import PreventUpdate
+import dash.testing.wait as wait
 from tests.integration.utils import json_engine
 
 
@@ -708,6 +709,8 @@ def test_cbsc015_input_output_callback(dash_duo):
             return str(v)
 
     dash_duo.start_server(app)
+
+    wait.until(lambda: call_count.value >= 1, timeout=3)
 
     input_ = dash_duo.find_element("#input")
     for key in "2":

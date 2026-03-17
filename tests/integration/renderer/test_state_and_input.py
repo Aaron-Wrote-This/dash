@@ -33,6 +33,9 @@ def test_rdsi001_state_and_inputs(dash_duo):
     def output_():
         return dash_duo.find_element("#output")
 
+    dash_duo.wait_for_text_to_equal(
+        "#output", 'input="Initial Input", state="Initial State"'
+    )
     assert (
         output_().text == 'input="Initial Input", state="Initial State"'
     ), "callback gets called with initial input"
@@ -87,6 +90,9 @@ def test_rdsi002_event_properties_state_and_inputs(dash_duo):
     def output():
         return dash_duo.find_element("#output")
 
+    dash_duo.wait_for_text_to_equal(
+        "#output", 'input="Initial Input", state="Initial State"'
+    )
     assert (
         output().text == 'input="Initial Input", state="Initial State"'
     ), "callback gets called with initial input"
